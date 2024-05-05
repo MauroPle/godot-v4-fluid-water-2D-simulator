@@ -1,0 +1,120 @@
+[gd_scene load_steps=13 format=3 uid="uid://brfh7551nvc16"]
+
+[ext_resource type="Script" path="res://water2Dsimulation/script/waterGenerator.gd" id="1_5j75m"]
+[ext_resource type="Script" path="res://water2Dsimulation/script/watar.gd" id="1_bdveq"]
+[ext_resource type="Script" path="res://water2Dsimulation/script/camera.gd" id="3_delej"]
+[ext_resource type="Texture2D" uid="uid://bdfcpwmcrcmis" path="res://water2Dsimulation/asset/icon.svg" id="4_0stiv"]
+[ext_resource type="Script" path="res://water2Dsimulation/script/pointer.gd" id="4_1to10"]
+[ext_resource type="Shader" path="res://water2Dsimulation/script/waterEffect.gdshader" id="6_qhjgq"]
+[ext_resource type="Texture2D" uid="uid://m762u2jupu7y" path="res://water2Dsimulation/asset/part.png" id="7_njyev"]
+[ext_resource type="Shader" path="res://water2Dsimulation/script/pointer.gdshader" id="8_nbdm4"]
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_2v82y"]
+shader = ExtResource("6_qhjgq")
+shader_parameter/TG_COLOR = Color(1, 0, 1, 1)
+shader_parameter/color_detect_threshold = 0.7
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_ootnj"]
+shader = ExtResource("8_nbdm4")
+
+[sub_resource type="PhysicsMaterial" id="PhysicsMaterial_bg3sf"]
+friction = 0.0
+
+[sub_resource type="CircleShape2D" id="CircleShape2D_awbqw"]
+radius = 40.0
+
+[node name="supaWatar" type="Node2D"]
+script = ExtResource("1_bdveq")
+
+[node name="Camera2D" type="Camera2D" parent="."]
+position = Vector2(576, 64)
+script = ExtResource("3_delej")
+target_area = Vector2(1152, 1152)
+
+[node name="waterShader" type="Sprite2D" parent="Camera2D"]
+z_index = 1
+material = SubResource("ShaderMaterial_2v82y")
+position = Vector2(-0.00012207, 3.99998)
+scale = Vector2(9.25, 9.0625)
+texture = ExtResource("4_0stiv")
+
+[node name="map" type="StaticBody2D" parent="."]
+
+[node name="CollisionPolygon2D" type="CollisionPolygon2D" parent="map"]
+polygon = PackedVector2Array(-16, 648, 1168, 648, 1168, -504, 1032, 480, 768, 424, 760, -72, 624, 504, 1000, 632, 24, 616, 392, 480, 616, -120, 544, -56, 400, -24, 232, -64, 128, -168, -16, -504)
+
+[node name="watarGen" type="Marker2D" parent="." groups=["waterGenerator"]]
+position = Vector2(64, -512)
+script = ExtResource("1_5j75m")
+tex = ExtResource("7_njyev")
+spawnRad = 10.0
+
+[node name="Label" type="Label" parent="."]
+z_index = 1
+offset_left = 92.0
+offset_top = -504.0
+offset_right = 577.0
+offset_bottom = -481.0
+scale = Vector2(2, 2)
+text = "Fluid physics simulation by Mauro Plescovich (work in progress)
+"
+horizontal_alignment = 1
+
+[node name="LineEdit" type="LineEdit" parent="."]
+offset_left = 446.0
+offset_top = -458.0
+offset_right = 576.0
+offset_bottom = -427.0
+scale = Vector2(2, 2)
+placeholder_text = "attraction force"
+alignment = 1
+expand_to_text_length = true
+
+[node name="Label3" type="Label" parent="."]
+z_index = 1
+offset_left = -4.0
+offset_top = -352.0
+offset_right = 576.0
+offset_bottom = -303.0
+scale = Vector2(2, 2)
+text = "Press space to generate water, P to toggle pointer mode and
+mouse button to activate it, R to reset and V to toggle instructions' visibility"
+horizontal_alignment = 1
+
+[node name="Label2" type="Label" parent="."]
+z_index = 1
+offset_left = 92.0
+offset_top = -400.0
+offset_right = 577.0
+offset_bottom = -377.0
+scale = Vector2(2, 2)
+text = "[stats]"
+horizontal_alignment = 1
+
+[node name="UI" type="Node2D" parent="."]
+
+[node name="Icon" type="Sprite2D" parent="UI"]
+visible = false
+z_index = 1
+material = SubResource("ShaderMaterial_ootnj")
+scale = Vector2(3, 3)
+texture = ExtResource("7_njyev")
+
+[node name="pointer" type="RigidBody2D" parent="UI"]
+mass = 1000.0
+physics_material_override = SubResource("PhysicsMaterial_bg3sf")
+lock_rotation = true
+script = ExtResource("4_1to10")
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="UI/pointer"]
+shape = SubResource("CircleShape2D_awbqw")
+
+[node name="Icon" type="Sprite2D" parent="UI/pointer/CollisionShape2D"]
+scale = Vector2(0.5, 0.5)
+texture = ExtResource("4_0stiv")
+
+[node name="Timer" type="Timer" parent="UI/pointer"]
+wait_time = 0.25
+one_shot = true
+
+[connection signal="text_submitted" from="LineEdit" to="." method="_on_line_edit_text_submitted"]
